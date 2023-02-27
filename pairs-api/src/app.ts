@@ -16,10 +16,11 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: true,
 }));
+
 app.use('/api/pairs', pairsRouter);
 app.use('/api/pairs/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const port = 3000;
+const port = 8080;
 
 app.listen(port, () => {
   logger.info(`Pairs Server is up and running on port numner ${port}`);

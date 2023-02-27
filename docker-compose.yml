@@ -1,0 +1,50 @@
+version: '3.7'
+volumes:
+  dynamodb_data:
+services:
+  database:
+    image: amazon/dynamodb-local:1.21.0
+    restart: unless-stopped
+    container_name: into-the-block.database
+    ports:
+      - 8000:8000
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /var/lib/dynamodb/data
+    user: root
+    volumes:
+     - dynamodb_data:/var/lib/dynamodb/data
+    environment:
+      - AWS_ACCESS_KEY_ID=""
+      - AWS_SECRET_ACCESS_KEY=""
+      - AWS_SESSION_TOKEN=""
+      - AWS_DEFAULT_REGION=us-east-1
+  pairs-api:
+    container_name: into-the-block.pairs-api
+    volumes:
+      - ./pairs-api/config:/app/config
+      - ./pairs-api/src:/app/src
+    image: into-the-block.pairs-api
+    entrypoint: npm run startDev
+    build:
+      context: ./pairs-api
+    depends_on:
+      - database
+    ports:
+      - 8080:8080
+    environment:
+      - AWS_ACCESS_KEY_ID=""
+      - AWS_SECRET_ACCESS_KEY=""
+      - AWS_SESSION_TOKEN=""
+      - AWS_DEFAULT_REGION=us-east-1
+  app:
+    container_name: into-the-block.app
+    entrypoint: npm run startDev
+    volumes:
+      - ./app/src:/app/src
+      - ./app/public:/app/public
+    image: into-the-block.app
+    depends_on:
+      - pairs-api
+    build:
+      context: ./app
+    ports:
+      - 3000:3000
