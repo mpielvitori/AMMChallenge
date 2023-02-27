@@ -1,0 +1,28 @@
+{
+  "TableName": "IntoTheBlock",
+  "KeySchema": [
+    {
+      "AttributeName": "pairAddress",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "hourStartUnix",
+      "KeyType": "RANGE"
+    }
+  ],
+  "BillingMode": "PROVISIONED",
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+  },
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "pairAddress",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "hourStartUnix",
+      "AttributeType": "N"
+    }
+  ]
+}
