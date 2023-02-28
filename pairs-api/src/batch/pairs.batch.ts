@@ -29,7 +29,7 @@ const getPairHourDataQuery = gql`query getPairHourData($pairAddress: String!, $f
 `;
 
 const savePairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
-  logger.info('SAVING');
+  logger.debug('Saving pair data collection');
   await saveAll(pairAddress, pairHourDatas);
 };
 

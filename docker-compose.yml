@@ -37,14 +37,21 @@ services:
       - AWS_DEFAULT_REGION=us-east-1
   app:
     container_name: into-the-block.app
-    entrypoint: npm run startDev
+    entrypoint: npm run start
     volumes:
       - ./app/src:/app/src
       - ./app/public:/app/public
     image: into-the-block.app
-    depends_on:
-      - pairs-api
     build:
       context: ./app
     ports:
       - 3000:3000
+    stdin_open: true
+  nginx:
+    container_name: into-the-block.proxy
+    image: into-the-block.proxy
+    restart: always
+    build:
+      context: ./nginx
+    ports:
+      - 80:80
