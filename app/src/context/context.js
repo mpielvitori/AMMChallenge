@@ -17,17 +17,15 @@ const AMMProvider = ({ children }) => {
     toggleError();
     setIsLoading(true);
     const pairsResponse = await axios(
-      `${pairsUrl}/api/pairs`,
+        `${pairsUrl}/api/pairs`,
+        { params: { contract } },
       ).catch((err) =>
       console.log(err)
     );
-    // console.log('PAIRS UI',pairsResponse);
-
     if (pairsResponse) {
       const chartDataResult = pairsResponse.data.map(pairData => {
-        return [pairData.hourStartUnix, Number(pairData.reserve1)]
+        return [Number(pairData.hourStartUnix)*1000, parseFloat(pairData.reserveUSD)]
       });
-      console.log('PAIRS UI',chartDataResult);
       setChartData(chartDataResult);
     } else {
       toggleError(true, 'there is no contract with that address');
@@ -35,7 +33,7 @@ const AMMProvider = ({ children }) => {
     setIsLoading(false);
   };
   useEffect(() => {
-    searchContract('0xbc9d21652cca70f54351e3fb982c6b5dbe992a22');
+    searchContract('0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc');
   }, []);
   return (
     <AMMContext.Provider

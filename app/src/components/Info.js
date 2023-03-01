@@ -6,47 +6,47 @@ const UserInfo = () => {
     {
       id: 1,
       label: 'Total allocation',
-      value: 1,
+      value: '$2,533,557.32',
     },
     {
       id: 2,
       label: 'Day change',
-      value: 2,
+      value: '+$4,482.29 (0.18%)',
     },
     {
       id: 3,
       label: 'YTD Change',
-      value: 3,
+      value: '+$1,360,225 (115.93%)',
     },
     {
       id: 4,
       label: 'Average Annualized Yield',
-      value: 4,
+      value: '23%',
     },
     {
       id: 5,
       label: 'Total Deployed',
-      value: 5,
+      value: '$21,000,000',
     },
     {
       id: 6,
       label: 'All-Time',
-      value: 6,
+      value: '8.838%',
     },
     {
       id: 7,
       label: '30-Day',
-      value: 7,
+      value: '8.838%',
     },
     {
       id: 8,
       label: '7-Day',
-      value: 8,
+      value: '7.382%',
     },
     {
       id: 9,
       label: '24-Hour',
-      value: 9,
+      value: '7.765%',
     },
   ];
   return <section className="section">
@@ -77,7 +77,7 @@ const Wrapper = styled.section`
   .item {
     border-radius: var(--radius);
     border:1px solid #EFEFF4;
-    padding: 1rem 2rem;
+    padding: 1rem 1rem;
     background: var(--clr-white);
     column-gap: 3rem;
     align-items: center;

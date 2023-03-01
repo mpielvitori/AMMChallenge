@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Info, Chart, Search } from '../components';
 import loadingImage from '../images/preloader.gif';
 import { AMMContext } from '../context/context';

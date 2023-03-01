@@ -23,7 +23,7 @@ app.use('/api/pairs/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const port = 8080;
 
 app.listen(port, () => {
-  logger.info(`Pairs Server is up and running on port numner ${port}`);
+  logger.debug(`Pairs Server is up and running on port numner ${port}`);
 });
 
 export default app;

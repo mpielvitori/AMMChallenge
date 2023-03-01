@@ -1,15 +1,16 @@
-{
-  PAIRS: {
-    A: "0xbc9d21652cca70f54351e3fb982c6b5dbe992a22",
-    B: "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
-    TABLE_NAME: "IntoTheBlock",
-  },
-  UNISWAP_URL: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
-  CALL_INTERVAL_IN_SECONDS: 3600,
-  INITIAL_CALL_INTERVAL_IN_SECONDS: 172800,
-  AWS: {
-    REGION: "us-east-1",
-    ENDPOINT: "http://into-the-block.database:8000"
-  },
-  LOG_LEVEL: "info"
-}
+PAIRS:
+  - name: A
+    address: '0xbc9d21652cca70f54351e3fb982c6b5dbe992a22'
+  - name: B
+    address: '0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc'
+  - name: FLUT-DAI
+    address: '0xe532b04d2f2e921dfec69e132e9214d2f82df304'
+  - name: stETH-ETH
+    address: '0x4028daac072e492d34a3afdbef0ba7e35d8b55c4'
+TABLE_NAME: AMMChallenge
+UNISWAP_URL: https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2
+CALL_INTERVAL_IN_SECONDS: 3600
+INITIAL_CALL_INTERVAL_IN_SECONDS: 604800
+AWS:
+  REGION: us-east-1
+  ENDPOINT: http://into-the-block.database:8000

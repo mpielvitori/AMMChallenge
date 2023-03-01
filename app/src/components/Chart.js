@@ -2,50 +2,32 @@ import styled from 'styled-components';
 import React, { Component } from 'react'
 import ReactHighcharts from 'react-highcharts/ReactHighstock.src'
 import moment from 'moment'
+import btcdata from '../context/mockData/btcdata.json';
 
 export default class Chart extends Component {
   render() {
-    const options = {style: 'currency', currency: 'USD'};
-    const numberFormat = new Intl.NumberFormat('en-US', options);
+    const numberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', notation: 'compact'});
+    const tooltipNumberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'});
     const configPrice = {
       navigator: {
         enabled: false
       },
       yAxis: [{
-        offset: -10,
-        opposite:false,
+        opposite: false,
         labels: {
           formatter: function () {
             return numberFormat.format(this.value)
           }
-          ,
-          // x: -1105,
-          // style: {
-          //   "color": "#000", "position": "absolute"
-
-          // },
-          // align: 'left'
         },
       },
       ],
       tooltip: {
         shared: true,
         formatter: function () {
-          return numberFormat.format(this.y, 0) +  '</b><br/>' + moment(this.x).format('MMMM Do YYYY, h:mm')
+          return tooltipNumberFormat.format(this.y, 0) +  '</b><br/>' + moment(this.x).format('MMMM Do, hh:mm');
         }
       },
-      // plotOptions: {
-      //   series: {
-      //     showInNavigator: false,
-      //     gapSize: 6,
-
-      //   }
-      // },
       title: {
-        text: `Total Allocation`,
-        align: 'left'
-      },
-      subtitle: {
         text: `Total Allocation`,
         align: 'left'
       },
@@ -60,36 +42,28 @@ export default class Chart extends Component {
       legend: {
         enabled: false
       },
-      xAxis: {
-        type: 'date',
-      },
       scrollbar: {
         enabled: false
       },
       rangeSelector: {
         inputEnabled: false,
         buttons: [{
+          type: 'hour',
+          count: 1,
+          text: '1h',
+        }, {
           type: 'day',
           count: 1,
-          text: '1d',
+          text: '1d'
         }, {
           type: 'day',
-          count: 7,
-          text: '7d'
-        }, {
-          type: 'month',
-          count: 1,
-          text: '1m'
-        }, {
-          type: 'month',
           count: 3,
-          text: '3m'
-        },
-          {
+          text: '3d'
+        }, {
           type: 'all',
           text: 'All'
         }],
-        selected: 0
+        selected: 1
       },
       series: [{
         name: 'Price',
@@ -116,8 +90,6 @@ const Wrapper = styled.div`
   display: grid;
   justify-items: center;
   gap: 2rem;
-
-
   div {
     width: 100% !important;
   }

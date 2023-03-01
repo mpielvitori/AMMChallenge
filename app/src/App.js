@@ -6,12 +6,12 @@ function App() {
   return (
     <Router>
       <Switch>
-      <Route path="/" exact={true}>
-      <Dashboard></Dashboard>
-      </Route>
-      <Route path="*">
-      <Error />
-      </Route>
+        <Route path="/" exact={true}>
+          <Dashboard></Dashboard>
+        </Route>
+        <Route path="*">
+          <Error />
+        </Route>
       </Switch>
     </Router>
   );

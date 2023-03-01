@@ -1,40 +1,62 @@
 import AWS from 'aws-sdk';
 import config from 'config';
 import { logger } from '../logger';
+const { REGION, ENDPOINT } = config.AWS;
 
-const { REGION } = config.AWS;
-// const uuidV4 = require('uuid/v4');
-
-const PAIRS_TABLE = config.PAIRS.TABLE_NAME;
 const dbClient = new AWS.DynamoDB.DocumentClient({
-  endpoint: 'http://into-the-block.database:8000',
+  endpoint: ENDPOINT,
   region: REGION,
 });
 
-/**
- * Persist Pair data record
- * @param {string} pairAddress
- * @param {string} volume
- * @param {string} fee
- * @return {object}
-*/
-export async function save(pairAddress, liquidity, volume, fee) {
-  logger.info(`Saving PAIR DATA ${pairAddress}, ${volume}, ${fee}`);
-  const timestamp = new Date().getTime();
+export async function createTable() {
+  logger.debug(`Creating ${config.TABLE_NAME} table`);
+  const dynamoDB = new AWS.DynamoDB({
+    endpoint: ENDPOINT,
+    region: REGION,
+  });
+  return dynamoDB.createTable({
+    TableName: config.TABLE_NAME,
+    KeySchema: [
+      {
+        AttributeName: 'pairAddress',
+        KeyType: 'HASH'
+      },
+      {
+        AttributeName: 'hourStartUnix',
+        KeyType: 'RANGE'
+      }
+    ],
+    BillingMode: 'PROVISIONED',
+    ProvisionedThroughput: {
+      ReadCapacityUnits: 1,
+      WriteCapacityUnits: 1
+    },
+    AttributeDefinitions: [
+      {
+        AttributeName: 'pairAddress',
+        AttributeType: 'S'
+      },
+      {
+        AttributeName: 'hourStartUnix',
+        AttributeType: 'N'
+      }
+    ]
+  }).promise();
+}
+
+export async function save(pairData: object) {
+  logger.debug(`Saving pair data`);
   const params = {
-    TableName: PAIRS_TABLE,
+    TableName: config.TABLE_NAME,
     Item: {
-      pairAddress,
-      createdAt: timestamp,
-      volume,
-      fee,
-      liquidity,
+      createdAt: Date.now(),
+      ...pairData
     },
   };
 
   try {
     const data = await dbClient.put(params).promise();
-    logger.info('Pair data saved successfully', data);
+    logger.debug('Pair data saved successfully');
     return data;
   } catch (error) {
     logger.error(`Error saving pair data ${error.stack}`);
@@ -45,7 +67,7 @@ export async function save(pairAddress, liquidity, volume, fee) {
 export async function saveAll(pairAddress: string, pairData: Array<object>) {
   const batchRequest = {
     RequestItems: {
-      [PAIRS_TABLE]: pairData.map((item) => ({
+      [config.TABLE_NAME]: pairData.map((item) => ({
         PutRequest: {
           Item: {
             pairAddress,
@@ -56,10 +78,10 @@ export async function saveAll(pairAddress: string, pairData: Array<object>) {
       })),
     },
   };
-  logger.info('SAVE ', batchRequest);
+  logger.debug('SAVE ', batchRequest);
   try {
     const data = await dbClient.batchWrite(batchRequest).promise();
-    logger.info('Pair data saved successfully', data);
+    logger.debug('Pair data saved successfully', data);
     return data;
   } catch (error) {
     logger.error(`Error saving pair data ${error.stack}`);
@@ -70,7 +92,7 @@ export async function saveAll(pairAddress: string, pairData: Array<object>) {
 export async function count() {
   try {
     return dbClient.scan({
-      TableName: PAIRS_TABLE,
+      TableName: config.TABLE_NAME,
       Select: 'COUNT',
     }).promise();
   } catch (error) {
@@ -79,14 +101,16 @@ export async function count() {
   }
 }
 
-export async function getAll() {
-  logger.info('Getting PAIR DATA');
+export async function getAll(contract: string) {
+  logger.debug(`Getting pair data for contract: ${contract}`);
   try {
-    const data = await dbClient.scan({
-      TableName: PAIRS_TABLE,
+    return await dbClient.query({
+      TableName: config.TABLE_NAME,
+      KeyConditionExpression: 'pairAddress = :pairAddress',
+      ExpressionAttributeValues: {
+        ':pairAddress': contract,
+      },
     }).promise();
-    logger.info('Pairs: ', data);
-    return data;
   } catch (error) {
     logger.error(`Error getting all rows ${error}`);
     throw error;
@@ -94,10 +118,10 @@ export async function getAll() {
 }
 
 export async function getLastInserted(pairAddress: string) {
-  logger.info('Getting PAIR DATA');
+  logger.debug(`Getting pair data ${pairAddress}`);
   try {
     const data = await dbClient.query({
-      TableName: PAIRS_TABLE,
+      TableName: config.TABLE_NAME,
       ScanIndexForward: false,
       Limit: 1,
       KeyConditionExpression: 'pairAddress = :pairAddress',
@@ -114,40 +138,3 @@ export async function getLastInserted(pairAddress: string) {
     throw error;
   }
 }
-
-// /**
-//  * Paginated scan for DNA table
-//  * @return {object}
-//  */
-// async function scanDNATable() {
-//   const dbClient = new AWS.DynamoDB.DocumentClient();
-//   const params = {
-//     TableName: PAIRS_TABLE,
-//     FilterExpression: 'mutant = :mutantValue',
-//     ExpressionAttributeValues: {
-//       ':mutantValue': true,
-//     },
-//     Select: 'COUNT',
-//   };
-
-//   let scannedCount = 0;
-//   let count = 0;
-//   let remainingData = true;
-//   let result;
-//   while (remainingData) {
-//     result = await dbClient.scan(params).promise();
-//     scannedCount += result.ScannedCount;
-//     count += result.Count;
-
-//     if (result.LastEvaluatedKey) {
-//       params.ExclusiveStartKey = result.LastEvaluatedKey;
-//     } else {
-//       remainingData = false;
-//     }
-//   }
-
-//   return {
-//     scannedCount,
-//     count,
-//   };
-// }
