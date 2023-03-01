@@ -1,10 +1,9 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import config from 'config';
 import { GraphQLClient, gql } from 'graphql-request';
 import { logger } from '../logger';
-import { save, count, getLastInserted, createTable } from '../models/pairs.model';
+import {
+  save, count, getLastInserted, createTable,
+} from '../models/pairs.model';
 
 const dbClient = new GraphQLClient(
   config.UNISWAP_URL,
@@ -29,14 +28,13 @@ const getPairHourDataQuery = gql`query getPairHourData($pairAddress: String!, $f
 `;
 
 const savePairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
-  logger.debug('Saving pair data');
-  save
-  for (const pairHourData of pairHourDatas) {
+  logger.debug(`Saving pair data ${pairAddress}`);
+  await Promise.all(pairHourDatas.map(async (pairHourData) => {
     await save({
       pairAddress,
-      ...pairHourData
+      ...pairHourData,
     });
-  }
+  }));
 };
 
 const getPairsData = async (fromTimestamp: number, pairAddress: string): Promise<Array<object>> => {
@@ -47,16 +45,17 @@ const getPairsData = async (fromTimestamp: number, pairAddress: string): Promise
       fromTimestamp,
     },
   );
-  logger.debug('RESULT ', result);
+  logger.debug(` getPairsData by ${pairAddress}-${fromTimestamp} `, result);
   return result.pairHourDatas;
 };
 
 const callPairsData = async (fromTimestamp: number) => {
   // Search for data since an hour ago
   if (!fromTimestamp) {
+    // eslint-disable-next-line no-param-reassign
     fromTimestamp = Math.floor(Date.now() / 1000) - config.CALL_INTERVAL_IN_SECONDS;
   }
-  logger.debug(`TIMESTAMP ${fromTimestamp}`);
+  logger.debug(`callPairsData timestamp ${fromTimestamp}`);
   // const fakeAddress = '0x21b8065d10f73ee2e260e5b47d3344d3ced7596e';
   await Promise.all(config.PAIRS.map(async (pair) => {
     const pairHourDatas: Array<object> = await getPairsData(
@@ -70,18 +69,18 @@ const callPairsData = async (fromTimestamp: number) => {
 };
 
 export const persistPairData = async () => {
-  logger.debug('Start batch process');
-  if (config.CREATE_TABLE === 'true'){
+  logger.debug('Start persistPairData batch process');
+  if (config.CREATE_TABLE === 'true') {
     try {
       await createTable();
     } catch (error) {
-      logger.error('Create table enabled!!!');
+      logger.error('CREATE TABLE ENABLED!!!', error);
     }
   }
   const countResult = await count();
   logger.debug(`Table count: ${countResult.Count}`);
   if (countResult.Count === 0) {
-    logger.debug('First load');
+    logger.debug('Initial load');
     const oldTimestamp = Math.floor(Date.now() / 1000) - config.INITIAL_CALL_INTERVAL_IN_SECONDS;
     await callPairsData(oldTimestamp);
   } else {
@@ -91,6 +90,7 @@ export const persistPairData = async () => {
       lastInserted
       && lastInserted.hourStartUnix < Date.now() / 1000 - config.CALL_INTERVAL_IN_SECONDS
     ) {
+      logger.debug('Workaround initial load');
       await callPairsData(Math.floor(lastInserted.hourStartUnix));
     }
   }

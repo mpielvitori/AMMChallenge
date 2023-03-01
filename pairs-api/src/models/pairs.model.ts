@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import config from 'config';
 import { logger } from '../logger';
+
 const { REGION, ENDPOINT } = config.AWS;
 
 const dbClient = new AWS.DynamoDB.DocumentClient({
@@ -19,28 +20,28 @@ export async function createTable() {
     KeySchema: [
       {
         AttributeName: 'pairAddress',
-        KeyType: 'HASH'
+        KeyType: 'HASH',
       },
       {
         AttributeName: 'hourStartUnix',
-        KeyType: 'RANGE'
-      }
+        KeyType: 'RANGE',
+      },
     ],
     BillingMode: 'PROVISIONED',
     ProvisionedThroughput: {
       ReadCapacityUnits: 1,
-      WriteCapacityUnits: 1
+      WriteCapacityUnits: 1,
     },
     AttributeDefinitions: [
       {
         AttributeName: 'pairAddress',
-        AttributeType: 'S'
+        AttributeType: 'S',
       },
       {
         AttributeName: 'hourStartUnix',
-        AttributeType: 'N'
-      }
-    ]
+        AttributeType: 'N',
+      },
+    ],
   }).promise();
 }
 
@@ -49,7 +50,7 @@ export async function save(pairData: object) {
     TableName: config.TABLE_NAME,
     Item: {
       createdAt: Date.now(),
-      ...pairData
+      ...pairData,
     },
   };
 

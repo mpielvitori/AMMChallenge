@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Pairs REST API",
   "scripts": {
-    "test": "jest --passWithNoTests",
-    "lint": "eslint . --ext .ts --fix",
+    "test": "jest",
+    "testCoverage": "jest --coverage",
+    "lint": "eslint . --ext .ts",
     "lintAndTest": "yarn lint && yarn test",
     "start": "tsc && npm run copy-files && npm run copy-config && node dist/app.js",
     "startDev": "nodemon --inspect=0.0.0.0 ./src/app.ts",

@@ -23,7 +23,7 @@ services:
       - ./pairs-api/config:/app/config
       - ./pairs-api/src:/app/src
     image: into-the-block.pairs-api
-    entrypoint: npm run startDev
+    entrypoint: sh /app/dev.entrypoint.sh
     build:
       context: ./pairs-api
     depends_on:
@@ -37,9 +37,11 @@ services:
       - AWS_SESSION_TOKEN=""
       - AWS_DEFAULT_REGION=us-east-1
       - LOG_LEVEL=$LOG_LEVEL
+    restart: unless-stopped
   app:
     container_name: into-the-block.app
     entrypoint: npm run start
+    restart: unless-stopped
     volumes:
       - ./app/src:/app/src
       - ./app/public:/app/public
@@ -52,8 +54,11 @@ services:
   nginx:
     container_name: into-the-block.proxy
     image: into-the-block.proxy
-    restart: always
+    restart: unless-stopped
     build:
       context: ./nginx
+    depends_on:
+      - app
+      - pairs-api
     ports:
       - 80:80

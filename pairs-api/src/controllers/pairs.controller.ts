@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// import { GraphQLClient, gql } from 'graphql-request';
-// import config from 'config';
 import { logger } from '../logger';
 import { getAll } from '../models/pairs.model';
 

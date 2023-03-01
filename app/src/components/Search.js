@@ -91,7 +91,7 @@ const Wrapper = styled.div`
     input,
     button,
     svg {
-      font-size: 1.3rem;
+      font-size: 14px;
     }
     @media (max-width: 800px) {
       button,

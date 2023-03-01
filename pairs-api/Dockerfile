@@ -11,4 +11,4 @@ ENV NODE_ENV $NODE_ENV
 
 COPY ./ /app/
 
-CMD ["npm","start"]
+ENTRYPOINT ["npm","start"]

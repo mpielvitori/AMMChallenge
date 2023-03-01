@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import React, { Component } from 'react'
 import ReactHighcharts from 'react-highcharts/ReactHighstock.src'
 import moment from 'moment'
+// eslint-disable-next-line no-unused-vars
 import btcdata from '../context/mockData/btcdata.json';
 
 export default class Chart extends Component {
