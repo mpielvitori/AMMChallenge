@@ -10,7 +10,7 @@ PAIRS:
 TABLE_NAME: AMMChallenge
 UNISWAP_URL: https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2
 CALL_INTERVAL_IN_SECONDS: 3600
-INITIAL_CALL_INTERVAL_IN_SECONDS: 604800
+INITIAL_CALL_INTERVAL_IN_SECONDS: 172800
 AWS:
   REGION: us-east-1
   ENDPOINT: http://into-the-block.database:8000

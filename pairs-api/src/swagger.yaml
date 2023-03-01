@@ -4,7 +4,7 @@ info:
   version: v1
 servers:
   - description: 'Local'
-    url: 'http://localhost:8080'
+    url: 'http://localhost'
 tags:
   - description: Pairs
     name: pairs
@@ -13,6 +13,13 @@ paths:
     get:
       description: This request retrieves all pairs
       operationId: getPairs
+      parameters:
+        - in: query
+          required: true
+          name: contract
+          schema:
+            type: string
+            default: '0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc'
       responses:
         '200':
           content:
@@ -22,9 +29,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Pair'
           description: OK
-        '401':
-          description: Unauthorized
-        '403':
+        '500':
           content:
             '*/*':
               schema:
@@ -37,9 +42,25 @@ components:
     Pair:
       type: object
       properties:
-        A:
+        createdAt:
           type: string
-        B:
+          format: date
+        pairAddress:
+          type: string
+        hourStartUnix:
+          type: string
+          format: date
+        reserve1:
+          type: string
+        reserve0:
+          type: string
+        reserveUSD:
+          type: string
+        hourlyVolumeToken0:
+          type: string
+        hourlyVolumeToken1:
+          type: string
+        hourlyVolumeUSD:
           type: string
     ErrorInfo:
       type: object

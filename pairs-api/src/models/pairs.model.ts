@@ -45,7 +45,6 @@ export async function createTable() {
 }
 
 export async function save(pairData: object) {
-  logger.debug(`Saving pair data`);
   const params = {
     TableName: config.TABLE_NAME,
     Item: {
@@ -55,9 +54,7 @@ export async function save(pairData: object) {
   };
 
   try {
-    const data = await dbClient.put(params).promise();
-    logger.debug('Pair data saved successfully');
-    return data;
+    return await dbClient.put(params).promise();
   } catch (error) {
     logger.error(`Error saving pair data ${error.stack}`);
     throw error;
@@ -78,11 +75,8 @@ export async function saveAll(pairAddress: string, pairData: Array<object>) {
       })),
     },
   };
-  logger.debug('SAVE ', batchRequest);
   try {
-    const data = await dbClient.batchWrite(batchRequest).promise();
-    logger.debug('Pair data saved successfully', data);
-    return data;
+    return await dbClient.batchWrite(batchRequest).promise();
   } catch (error) {
     logger.error(`Error saving pair data ${error.stack}`);
     throw error;
@@ -118,7 +112,7 @@ export async function getAll(contract: string) {
 }
 
 export async function getLastInserted(pairAddress: string) {
-  logger.debug(`Getting pair data ${pairAddress}`);
+  logger.debug(`Getting last pair data ${pairAddress}`);
   try {
     const data = await dbClient.query({
       TableName: config.TABLE_NAME,
