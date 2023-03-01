@@ -27,7 +27,7 @@ const getPairHourDataQuery = gql`query getPairHourData($pairAddress: String!, $f
 }
 `;
 
-const savePairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
+const saveDBPairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
   logger.debug(`Saving pair data ${pairAddress}`);
   await Promise.all(pairHourDatas.map(async (pairHourData) => {
     await save({
@@ -37,7 +37,7 @@ const savePairsData = async (pairAddress: string, pairHourDatas: Array<object>) 
   }));
 };
 
-const getPairsData = async (fromTimestamp: number, pairAddress: string): Promise<Array<object>> => {
+const getDBPairsData = async (fromTimestamp: number, pairAddress: string): Promise<Array<object>> => {
   const result = await dbClient.request(
     getPairHourDataQuery,
     {
@@ -45,25 +45,24 @@ const getPairsData = async (fromTimestamp: number, pairAddress: string): Promise
       fromTimestamp,
     },
   );
-  logger.debug(` getPairsData by ${pairAddress}-${fromTimestamp} `, result);
+  logger.debug(` getDBPairsData by ${pairAddress}-${fromTimestamp} `, result);
   return result.pairHourDatas;
 };
 
-const callPairsData = async (fromTimestamp: number) => {
-  // Search for data since an hour ago
+const callAndSavePairsData = async (fromTimestamp: number) => {
+  // Search for data since an interval ago
   if (!fromTimestamp) {
     // eslint-disable-next-line no-param-reassign
     fromTimestamp = Math.floor(Date.now() / 1000) - config.CALL_INTERVAL_IN_SECONDS;
   }
-  logger.debug(`callPairsData timestamp ${fromTimestamp}`);
-  // const fakeAddress = '0x21b8065d10f73ee2e260e5b47d3344d3ced7596e';
   await Promise.all(config.PAIRS.map(async (pair) => {
-    const pairHourDatas: Array<object> = await getPairsData(
+    logger.debug(`callPairsData timestamp ${fromTimestamp}`);
+    const pairHourDatas: Array<object> = await getDBPairsData(
       fromTimestamp,
       pair.address,
     );
     if (pairHourDatas?.length > 0) {
-      await savePairsData(pair.address, pairHourDatas);
+      await saveDBPairsData(pair.address, pairHourDatas);
     }
   }));
 };
@@ -82,7 +81,7 @@ export const persistPairData = async () => {
   if (countResult.Count === 0) {
     logger.debug('Initial load');
     const oldTimestamp = Math.floor(Date.now() / 1000) - config.INITIAL_CALL_INTERVAL_IN_SECONDS;
-    await callPairsData(oldTimestamp);
+    await callAndSavePairsData(oldTimestamp);
   } else {
     // workaround for local testing the batch process - persist data if last inserted block was before than an hour ago
     const lastInserted = await getLastInserted(config.PAIRS[0].address);
@@ -91,8 +90,8 @@ export const persistPairData = async () => {
       && lastInserted.hourStartUnix < Date.now() / 1000 - config.CALL_INTERVAL_IN_SECONDS
     ) {
       logger.debug('Workaround initial load');
-      await callPairsData(Math.floor(lastInserted.hourStartUnix));
+      await callAndSavePairsData(Math.floor(lastInserted.hourStartUnix));
     }
   }
-  setInterval(callPairsData, config.CALL_INTERVAL_IN_SECONDS * 1000, undefined);
+  setInterval(callAndSavePairsData, config.CALL_INTERVAL_IN_SECONDS * 1000, undefined);
 };
