@@ -33,7 +33,7 @@ export default class Chart extends Component {
         align: 'left'
       },
       chart: {
-        height: 600,
+        height: 451,
       },
 
       credits: {
