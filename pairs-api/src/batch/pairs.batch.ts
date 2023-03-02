@@ -46,7 +46,8 @@ const getDBPairsData = async (fromTimestamp: number, pairAddress: string): Promi
     },
   );
   logger.debug(` getDBPairsData by ${pairAddress}-${fromTimestamp} `, result);
-  return result.pairHourDatas;
+  // eslint-disable-next-line dot-notation
+  return result['pairHourDatas'];
 };
 
 const callAndSavePairsData = async (fromTimestamp: number) => {
