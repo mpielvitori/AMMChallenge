@@ -40,7 +40,7 @@ type PairHourDatas = {
   pairHourDatas: Array<PairHourData>;
 }
 
-const saveDBPairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
+const saveDBPairsData = async (pairAddress: string, pairHourDatas: Array<PairHourData>) => {
   logger.debug(`Saving pair data ${pairAddress}`);
   await Promise.all(pairHourDatas.map(async (pairHourData) => {
     await save({
@@ -70,7 +70,7 @@ const callAndSavePairsData = async (fromTimestamp: number) => {
   }
   await Promise.all(config.PAIRS.map(async (pair) => {
     logger.debug(`callPairsData timestamp ${fromTimestamp}`);
-    const pairHourDatas: Array<object> = await getUniswapData(
+    const pairHourDatas: Array<PairHourData> = await getUniswapData(
       fromTimestamp,
       pair.address,
     );
