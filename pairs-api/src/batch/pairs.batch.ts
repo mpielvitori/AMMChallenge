@@ -5,7 +5,7 @@ import {
   save, count, getLastInserted, createTable,
 } from '../models/pairs.model';
 
-const dbClient = new GraphQLClient(
+const gqlClient = new GraphQLClient(
   config.UNISWAP_URL,
   { headers: { 'Content-Type': 'application/json' } },
 );
@@ -27,6 +27,19 @@ const getPairHourDataQuery = gql`query getPairHourData($pairAddress: String!, $f
 }
 `;
 
+type PairHourData = {
+  hourStartUnix: number,
+  hourlyVolumeToken0: string,
+  hourlyVolumeToken1: string,
+  hourlyVolumeUSD: string,
+  reserve0: string,
+  reserve1: string,
+  reserveUSD: string
+}
+type PairHourDatas = {
+  pairHourDatas: Array<PairHourData>;
+}
+
 const saveDBPairsData = async (pairAddress: string, pairHourDatas: Array<object>) => {
   logger.debug(`Saving pair data ${pairAddress}`);
   await Promise.all(pairHourDatas.map(async (pairHourData) => {
@@ -37,17 +50,16 @@ const saveDBPairsData = async (pairAddress: string, pairHourDatas: Array<object>
   }));
 };
 
-const getDBPairsData = async (fromTimestamp: number, pairAddress: string): Promise<Array<object>> => {
-  const result = await dbClient.request(
+const getUniswapData = async (fromTimestamp: number, pairAddress: string): Promise<Array<PairHourData>> => {
+  const result: PairHourDatas = await gqlClient.request(
     getPairHourDataQuery,
     {
       pairAddress,
       fromTimestamp,
     },
   );
-  logger.debug(` getDBPairsData by ${pairAddress}-${fromTimestamp} `, result);
-  // eslint-disable-next-line dot-notation
-  return result['pairHourDatas'];
+  logger.debug(` getUniswapData by ${pairAddress}-${fromTimestamp} `, result);
+  return result.pairHourDatas;
 };
 
 const callAndSavePairsData = async (fromTimestamp: number) => {
@@ -58,7 +70,7 @@ const callAndSavePairsData = async (fromTimestamp: number) => {
   }
   await Promise.all(config.PAIRS.map(async (pair) => {
     logger.debug(`callPairsData timestamp ${fromTimestamp}`);
-    const pairHourDatas: Array<object> = await getDBPairsData(
+    const pairHourDatas: Array<object> = await getUniswapData(
       fromTimestamp,
       pair.address,
     );
